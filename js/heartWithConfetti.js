@@ -36,38 +36,54 @@ function drawConfetti(confetto) {
 }
 
 function createHeart() {
+    const x = Math.random() * canvas.width;
+    const y = canvas.height + 20;
+    const size = Math.random() * 30 + 20;
+    const speed = Math.random() + 0.3;
+    const horizontalSpeed = (Math.random() - 0.5) * 1.2;
+    const color = createRandomColor();
+    const alpha = 1;
+    const explosionProbability = Math.random() < 0.1;
+    const targetHeight = Math.random() * canvas.height * 0.5 + canvas.height * 0.1
+
     const heart = {
-        x: Math.random() * canvas.width,
-        y: canvas.height + 20,
-        size: Math.random() * 30 + 20,
-        speed: Math.random() + 0.3,
-        horizontalSpeed: (Math.random() - 0.5) * 1.2,
-        color: createRandomColor(),
-        alpha: 1,
-        explosionProbability: Math.random() < 0.1,
-        targetHeight: Math.random() * canvas.height * 0.5 + canvas.height * 0.1
+        x: x,
+        y: y,
+        size: size,
+        speed: speed,
+        horizontalSpeed: horizontalSpeed,
+        color: color,
+        alpha: alpha,
+        explosionProbability: explosionProbability,
+        targetHeight: targetHeight
     };
     hearts.push(heart);
 }
 
 function createExplosion(x, y) {
     const numParticles = Math.random() * 40 + 20;
-    const maxSpeed = Math.random() * 5 + 1;
 
     for (let i = 0; i < numParticles; i++) {
+        const maxSpeed = Math.random() * 5;
         const angle = Math.random() * Math.PI * 2;
         const speed = Math.random() * maxSpeed;
+        const speedX = Math.cos(angle) * speed;
+        const speedY = Math.sin(angle) * speed;
         const size = Math.random() * 6 + 3;
         const color = createRandomColor();
-        const alpha = Math.random() * 0.5 + 0.5;
+        const gravity = 0.01;
+        const disappearDistance = Math.random() * 50 + canvas.height * 0.5;
+        const alpha = Math.random() * 0.5 + 0.7;
 
         const particle = {
             x: x,
             y: y,
             size: size,
-            speedX: Math.cos(angle) * speed,
-            speedY: Math.sin(angle) * speed,
+            speedX: speedX,
+            speedY: speedY,
             color: color,
+            gravity: gravity,
+            disappearDistance: disappearDistance,
             alpha: alpha
         };
         confetti.push(particle);
@@ -113,7 +129,11 @@ function heartAnimate() {
     confetti.forEach((confetto, index) => {
         confetto.x += confetto.speedX;
         confetto.y += confetto.speedY;
-        confetto.alpha -= 0.01;
+        confetto.speedY += confetto.gravity
+
+        if (confetto.y >= confetto.disappearDistance) {
+            confetto.alpha -= 0.01;
+        }
 
         if (confetto.alpha <= 0) {
             confetti.splice(index, 1);
