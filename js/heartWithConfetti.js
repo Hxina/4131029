@@ -110,6 +110,7 @@ function createRandomColor() {
 function heartAnimate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    let heartsToRemove = [];
     hearts.forEach((heart, index) => {
         heart.y -= heart.speed;
         heart.x += heart.horizontalSpeed;
@@ -118,28 +119,37 @@ function heartAnimate() {
 
         if (heart.y <= heart.targetHeight && heart.explosionProbability) {
             createExplosion(heart.x, heart.y);
-            hearts.splice(index, 1);
+            heartsToRemove.push(index);
         } else if (heart.y < -heart.size || heart.x < -heart.size || heart.x > canvas.width + heart.size) {
-            hearts.splice(index, 1);
+            heartsToRemove.push(index);
         } else {
             drawHeart(heart.x, heart.y, heart.size, heart.color, heart.alpha);
         }
     });
 
+    heartsToRemove.forEach((index) => {
+        hearts.splice(index, 1);
+    });
+
+    let confettiToRemove = [];
     confetti.forEach((confetto, index) => {
         confetto.x += confetto.speedX;
         confetto.y += confetto.speedY;
-        confetto.speedY += confetto.gravity
+        confetto.speedY += confetto.gravity;
 
         if (confetto.y >= confetto.disappearDistance) {
             confetto.alpha -= 0.01;
         }
 
         if (confetto.alpha <= 0) {
-            confetti.splice(index, 1);
+            confettiToRemove.push(index);
         } else {
             drawConfetti(confetto);
         }
+    });
+
+    confettiToRemove.forEach((index) => {
+        confetti.splice(index, 1);
     });
 
     heartAnimationFrameId = requestAnimationFrame(heartAnimate);
@@ -155,10 +165,14 @@ function startHeartAnimation() {
 function stopHeartAnimation() {
     cancelAnimationFrame(heartAnimationFrameId);
     clearInterval(heartAnimationIntervalId);
+    heartAnimationIntervalId = null;
+    window.removeEventListener("resize", resizeCanvas);
 }
 
 function resumeHeartAnimation() {
-    heartAnimationIntervalId = setInterval(createHeart, 300);
+    if (!heartAnimationIntervalId) {
+        heartAnimationIntervalId = setInterval(createHeart, 300);
+    }
     heartAnimationFrameId = requestAnimationFrame(heartAnimate);
 }
 
@@ -168,6 +182,7 @@ canvas.addEventListener("mousemove", function (event) {
     const mouseY = event.clientY - rect.top;
 
     let mouseOverHeart = false;
+
     hearts.forEach((heart) => {
         const dx = mouseX - heart.x;
         const dy = mouseY - heart.y;
