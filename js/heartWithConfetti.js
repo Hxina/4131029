@@ -39,7 +39,7 @@ function createHeart() {
     const x = Math.random() * canvas.width;
     const y = canvas.height + 20;
     const size = Math.random() * 30 + 20;
-    const speed = Math.random() + 0.3;
+    const verticalSpeed = Math.random() + 0.3;
     const horizontalSpeed = (Math.random() - 0.5) * 1.2;
     const color = createRandomColor();
     const alpha = 1;
@@ -50,12 +50,13 @@ function createHeart() {
         x: x,
         y: y,
         size: size,
-        speed: speed,
+        verticalSpeed: verticalSpeed,
         horizontalSpeed: horizontalSpeed,
         color: color,
         alpha: alpha,
         explosionProbability: explosionProbability,
-        targetHeight: targetHeight
+        targetHeight: targetHeight,
+        needsExplosion: false
     };
     hearts.push(heart);
 }
@@ -72,8 +73,8 @@ function createExplosion(x, y) {
         const size = Math.random() * 6 + 3;
         const color = createRandomColor();
         const gravity = 0.01;
-        const disappearDistance = Math.random() * 50 + canvas.height * 0.5;
-        const alpha = Math.random() * 0.5 + 0.7;
+        const disappearDistance = Math.random() * 40 + canvas.height * 0.3 + canvas.width * 0.3;
+        const alpha = Math.random() * 0.3 + 0.7;
 
         const particle = {
             x: x,
@@ -107,31 +108,73 @@ function createRandomColor() {
     return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
+function detectCollision(heart1, heart2) {
+    const dx = heart1.x - heart2.x;
+    const dy = heart1.y - heart2.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    return distance < (heart1.size + heart2.size) / 2;
+}
+
+function findCollisions() {
+    let visited = new Array(hearts.length).fill(false);
+    let clusters = [];
+
+    function dfs(index, cluster) {
+        visited[index] = true;
+        cluster.push(index);
+
+        for (let i = 0; i < hearts.length; i++) {
+            if (!visited[i] && detectCollision(hearts[index], hearts[i])) {
+                dfs(i, cluster);
+            }
+        }
+    }
+
+    for (let i = 0; i < hearts.length; i++) {
+        if (!visited[i]) {
+            let cluster = [];
+            dfs(i, cluster);
+            if (cluster.length > 1) {
+                clusters.push(cluster);
+            }
+        }
+    }
+
+    clusters.forEach(cluster => {
+        cluster.forEach(index => {
+            hearts[index].needsExplosion = true;
+        });
+    });
+}
+
 function heartAnimate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    let heartsToRemove = [];
-    hearts.forEach((heart, index) => {
-        heart.y -= heart.speed;
+    hearts.forEach((heart) => {
+        heart.y -= heart.verticalSpeed;
         heart.x += heart.horizontalSpeed;
         heart.horizontalSpeed += (Math.random() - 0.5) * 0.1;
         heart.alpha = 0.2 + (heart.y / canvas.height) * 0.8;
 
         if (heart.y <= heart.targetHeight && heart.explosionProbability) {
-            createExplosion(heart.x, heart.y);
-            heartsToRemove.push(index);
-        } else if (heart.y < -heart.size || heart.x < -heart.size || heart.x > canvas.width + heart.size) {
-            heartsToRemove.push(index);
+            heart.needsExplosion = true;
         } else {
             drawHeart(heart.x, heart.y, heart.size, heart.color, heart.alpha);
         }
     });
 
-    heartsToRemove.forEach((index) => {
-        hearts.splice(index, 1);
+    findCollisions();
+
+    hearts = hearts.filter(heart => {
+        if (heart.needsExplosion) {
+            createExplosion(heart.x, heart.y);
+            return false;
+        }
+        return true;
     });
 
     let confettiToRemove = [];
+    
     confetti.forEach((confetto, index) => {
         confetto.x += confetto.speedX;
         confetto.y += confetto.speedY;
@@ -173,6 +216,7 @@ function resumeHeartAnimation() {
     if (!heartAnimationIntervalId) {
         heartAnimationIntervalId = setInterval(createHeart, 300);
     }
+
     heartAnimationFrameId = requestAnimationFrame(heartAnimate);
 }
 
@@ -205,14 +249,13 @@ canvas.addEventListener("click", function (event) {
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
 
-    hearts.forEach((heart, index) => {
+    hearts.forEach((heart) => {
         const dx = mouseX - heart.x;
         const dy = mouseY - heart.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance < heart.size) {
-            createExplosion(heart.x, heart.y);
-            hearts.splice(index, 1);
+            heart.needsExplosion = true;
         }
     });
 });
