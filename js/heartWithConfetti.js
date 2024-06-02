@@ -147,8 +147,13 @@ function findCollisions() {
     });
 }
 
+let mouseX = 0;
+let mouseY = 0;
+
 function heartAnimate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    let mouseOverHeart = false;
 
     hearts.forEach((heart) => {
         heart.y -= heart.verticalSpeed;
@@ -156,12 +161,26 @@ function heartAnimate() {
         heart.horizontalSpeed += (Math.random() - 0.5) * 0.1;
         heart.alpha = 0.2 + (heart.y / canvas.height) * 0.8;
 
+        const dx = mouseX - heart.x;
+        const dy = mouseY - heart.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < heart.size) {
+            mouseOverHeart = true;
+        }
+
         if (heart.y <= heart.targetHeight && heart.explosionProbability) {
             heart.needsExplosion = true;
         } else {
             drawHeart(heart.x, heart.y, heart.size, heart.color, heart.alpha);
         }
     });
+
+    if (mouseOverHeart) {
+        canvas.style.cursor = "pointer";
+    } else {
+        canvas.style.cursor = "default";
+    }
 
     findCollisions();
 
@@ -174,7 +193,7 @@ function heartAnimate() {
     });
 
     let confettiToRemove = [];
-    
+
     confetti.forEach((confetto, index) => {
         confetto.x += confetto.speedX;
         confetto.y += confetto.speedY;
@@ -222,8 +241,8 @@ function resumeHeartAnimation() {
 
 canvas.addEventListener("mousemove", function (event) {
     const rect = canvas.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
+    mouseX = event.clientX - rect.left;
+    mouseY = event.clientY - rect.top;
 
     let mouseOverHeart = false;
 
@@ -236,12 +255,6 @@ canvas.addEventListener("mousemove", function (event) {
             mouseOverHeart = true;
         }
     });
-
-    if (mouseOverHeart) {
-        canvas.style.cursor = "pointer";
-    } else {
-        canvas.style.cursor = "default";
-    }
 });
 
 canvas.addEventListener("click", function (event) {
