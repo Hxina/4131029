@@ -3,6 +3,8 @@ const ctx = canvas.getContext("2d");
 
 let hearts = [];
 let confetti = [];
+let mouseX = 0;
+let mouseY = 0;
 let heartAnimationFrameId;
 let heartAnimationIntervalId;
 
@@ -149,9 +151,6 @@ function findCollisions() {
     });
 }
 
-let mouseX = 0;
-let mouseY = 0;
-
 function heartAnimate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -241,46 +240,55 @@ function resumeHeartAnimation() {
     heartAnimationFrameId = requestAnimationFrame(heartAnimate);
 }
 
-canvas.addEventListener("mousemove", function (event) {
-    const rect = canvas.getBoundingClientRect();
-    mouseX = event.clientX - rect.left;
-    mouseY = event.clientY - rect.top;
+function addMouseMoveEventListener(canvas) {
+    canvas.addEventListener("mousemove", function (event) {
+        const rect = canvas.getBoundingClientRect();
+        mouseX = event.clientX - rect.left;
+        mouseY = event.clientY - rect.top;
 
-    let mouseOverHeart = false;
+        let mouseOverHeart = false;
 
-    hearts.forEach((heart) => {
-        const dx = mouseX - heart.x;
-        const dy = mouseY - heart.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        hearts.forEach((heart) => {
+            const dx = mouseX - heart.x;
+            const dy = mouseY - heart.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance < heart.size) {
-            mouseOverHeart = true;
+            if (distance < heart.size) {
+                mouseOverHeart = true;
+            }
+        });
+
+        if (mouseOverHeart) {
+            canvas.style.cursor = "pointer";
+        } else {
+            canvas.style.cursor = "default";
         }
     });
-});
+}
 
-canvas.addEventListener("click", function (event) {
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
+function addClickEventListener(canvas) {
+    canvas.addEventListener("click", function (event) {
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = event.clientX - rect.left;
+        const mouseY = event.clientY - rect.top;
 
-    hearts.forEach((heart) => {
-        const dx = mouseX - heart.x;
-        const dy = mouseY - heart.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        hearts.forEach((heart) => {
+            const dx = mouseX - heart.x;
+            const dy = mouseY - heart.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance < heart.size) {
-            heart.needsExplosion = true;
-        }
+            if (distance < heart.size) {
+                heart.needsExplosion = true;
+            }
+        });
     });
-});
+}
 
-window.onload = startHeartAnimation;
-
-window.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "hidden") {
-        stopHeartAnimation();
-    } else {
-        resumeHeartAnimation();
-    }
-});
+export {
+    adjustCanvasSize,
+    startHeartAnimation,
+    stopHeartAnimation,
+    resumeHeartAnimation,
+    addMouseMoveEventListener,
+    addClickEventListener
+}
