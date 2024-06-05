@@ -6,9 +6,11 @@ let confetti = [];
 let heartAnimationFrameId;
 let heartAnimationIntervalId;
 
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+function adjustCanvasSize() {
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = canvas.clientWidth * dpr;
+    canvas.height = canvas.clientHeight * dpr;
+    ctx.scale(dpr, dpr);
 }
 
 function drawHeart(x, y, size, color, alpha) {
@@ -39,8 +41,8 @@ function createHeart() {
     const x = Math.random() * canvas.width;
     const y = canvas.height + 20;
     const size = Math.random() * 30 + 20;
-    const verticalSpeed = Math.random() + 0.3;
-    const horizontalSpeed = (Math.random() - 0.5) * 1.2;
+    const verticalSpeed = Math.random() + 0.1;
+    const horizontalSpeed = (Math.random() - 0.5) * 0.3;
     const color = createRandomColor();
     const alpha = 1;
     const explosionProbability = Math.random() < 0.1;
@@ -218,8 +220,8 @@ function heartAnimate() {
 }
 
 function startHeartAnimation() {
-    resizeCanvas();
-    window.addEventListener("resize", resizeCanvas);
+    adjustCanvasSize();
+    window.addEventListener("resize", adjustCanvasSize);
     heartAnimationIntervalId = setInterval(createHeart, 300);
     heartAnimate();
 }
@@ -228,7 +230,7 @@ function stopHeartAnimation() {
     cancelAnimationFrame(heartAnimationFrameId);
     clearInterval(heartAnimationIntervalId);
     heartAnimationIntervalId = null;
-    window.removeEventListener("resize", resizeCanvas);
+    window.removeEventListener("resize", adjustCanvasSize);
 }
 
 function resumeHeartAnimation() {
