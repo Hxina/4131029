@@ -148,12 +148,9 @@ function resumeBlossomAnimation() {
     blossomAnimationFrameId = requestAnimationFrame(blossomAnimate);
 }
 
-window.onload = startBlossomAnimation;
-
-window.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "hidden") {
-        stopBlossomAnimation();
-    } else {
-        resumeBlossomAnimation();
-    }
-});
+export {
+    adjustCanvasSize,
+    startBlossomAnimation,
+    stopBlossomAnimation,
+    resumeBlossomAnimation
+}
