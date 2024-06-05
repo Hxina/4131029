@@ -1,69 +1,69 @@
-const canvas = document.getElementById("blossomCanvas");
-const ctx = canvas.getContext("2d");
+const blossomCanvas = document.getElementById("blossomCanvas");
+const blossomCtx = blossomCanvas.getContext("2d");
 
 let blossoms = [];
 let blossomAnimationFrameId;
 let blossomAnimationIntervalId;
 
-function adjustCanvasSize() {
+function adjustBlossomCanvasSize() {
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = canvas.clientWidth * dpr;
-    canvas.height = canvas.clientHeight * dpr;
-    ctx.scale(dpr, dpr);
+    blossomCanvas.width = blossomCanvas.clientWidth * dpr;
+    blossomCanvas.height = blossomCanvas.clientHeight * dpr;
+    blossomCtx.scale(dpr, dpr);
 }
 
 function drawBlossom(x, y, rotation, petals) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(rotation);
+    blossomCtx.save();
+    blossomCtx.translate(x, y);
+    blossomCtx.rotate(rotation);
 
     petals.forEach(petal => {
-        ctx.save();
-        ctx.translate(petal.x, petal.y);
-        ctx.rotate(petal.angle);
+        blossomCtx.save();
+        blossomCtx.translate(petal.x, petal.y);
+        blossomCtx.rotate(petal.angle);
         drawPetal(petal.size, petal.stamens);
-        ctx.restore();
+        blossomCtx.restore();
     });
 
-    ctx.restore();
+    blossomCtx.restore();
 }
 
 function drawPetal(size, stamens) {
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.bezierCurveTo(size / 2, -size / 2, size, -size / 4, size, 0);
-    ctx.bezierCurveTo(size, size / 4, size / 2, size / 2, 0, 0);
+    blossomCtx.beginPath();
+    blossomCtx.moveTo(0, 0);
+    blossomCtx.bezierCurveTo(size / 2, -size / 2, size, -size / 4, size, 0);
+    blossomCtx.bezierCurveTo(size, size / 4, size / 2, size / 2, 0, 0);
 
-    const gradientStrokePetalColor = ctx.createRadialGradient(0, size / 4, size / 2, 0, 0, size);
+    const gradientStrokePetalColor = blossomCtx.createRadialGradient(0, size / 4, size / 2, 0, 0, size);
     gradientStrokePetalColor.addColorStop(0, "#ff859f");
     gradientStrokePetalColor.addColorStop(1, "#fdf1f4");
-    ctx.strokeStyle = gradientStrokePetalColor;
-    ctx.stroke();
+    blossomCtx.strokeStyle = gradientStrokePetalColor;
+    blossomCtx.stroke();
 
-    const gradientPetalColor = ctx.createRadialGradient(0, 0, size / 9, 0, 0, size);
+    const gradientPetalColor = blossomCtx.createRadialGradient(0, 0, size / 9, 0, 0, size);
     gradientPetalColor.addColorStop(0, "#f47983");
     gradientPetalColor.addColorStop(1, "#fdf1f4");
-    ctx.fillStyle = gradientPetalColor;
-    ctx.fill();
+    blossomCtx.fillStyle = gradientPetalColor;
+    blossomCtx.fill();
 
     stamens.forEach(stamen => {
-        ctx.save();
-        ctx.rotate(stamen.angle);
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(stamen.length, 0);
-        ctx.strokeStyle = "#fde9ed";
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(stamen.length, 0, 2, 0, 2 * Math.PI);
-        ctx.fillStyle = "#fbd3dc";
-        ctx.fill();
-        ctx.restore();
+        blossomCtx.save();
+        blossomCtx.rotate(stamen.angle);
+        blossomCtx.beginPath();
+        blossomCtx.moveTo(0, 0);
+        blossomCtx.lineTo(stamen.length, 0);
+        blossomCtx.strokeStyle = "#fde9ed";
+        blossomCtx.stroke();
+        blossomCtx.beginPath();
+        blossomCtx.arc(stamen.length, 0, 2, 0, 2 * Math.PI);
+        blossomCtx.fillStyle = "#fbd3dc";
+        blossomCtx.fill();
+        blossomCtx.restore();
     });
 }
 
 function createBlossom() {
-    const x = Math.random() * canvas.width;
+    const x = Math.random() * blossomCanvas.width;
     const y = -20;
     const size = Math.random() * 20 + 20;
     const speed = Math.random() * 0.5 + 0.5;
@@ -110,7 +110,7 @@ function createBlossom() {
 }
 
 function blossomAnimate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    blossomCtx.clearRect(0, 0, blossomCanvas.width, blossomCanvas.height);
 
     blossoms.forEach((blossom, index) => {
         blossom.y += blossom.speed;
@@ -118,7 +118,7 @@ function blossomAnimate() {
         blossom.rotation += blossom.rotationSpeed;
         drawBlossom(blossom.x, blossom.y, blossom.rotation, blossom.petals);
 
-        if (blossom.y > canvas.height || blossom.x < -50 || blossom.x > canvas.width + 50) {
+        if (blossom.y > blossomCanvas.height || blossom.x < -50 || blossom.x > blossomCanvas.width + 50) {
             blossoms.splice(index, 1);
         }
     });
@@ -127,8 +127,8 @@ function blossomAnimate() {
 }
 
 function startBlossomAnimation() {
-    adjustCanvasSize();
-    window.addEventListener("resize", adjustCanvasSize);
+    adjustBlossomCanvasSize();
+    window.addEventListener("resize", adjustBlossomCanvasSize);
     blossomAnimationIntervalId = setInterval(createBlossom, 1800);
     blossomAnimate();
 }
@@ -137,7 +137,7 @@ function stopBlossomAnimation() {
     cancelAnimationFrame(blossomAnimationFrameId);
     clearInterval(blossomAnimationIntervalId);
     blossomAnimationIntervalId = null;
-    window.removeEventListener("resize", adjustCanvasSize);
+    window.removeEventListener("resize", adjustBlossomCanvasSize);
 }
 
 function resumeBlossomAnimation() {
@@ -149,7 +149,7 @@ function resumeBlossomAnimation() {
 }
 
 export {
-    adjustCanvasSize,
+    adjustBlossomCanvasSize,
     startBlossomAnimation,
     stopBlossomAnimation,
     resumeBlossomAnimation

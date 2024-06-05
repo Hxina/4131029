@@ -1,18 +1,18 @@
 import {
-    adjustCanvasSize as adjustBlossomCanvasSize,
+    adjustBlossomCanvasSize,
     startBlossomAnimation,
     stopBlossomAnimation,
     resumeBlossomAnimation
-} from './blossom.js';
+} from "./blossom.js";
 
 import {
-    adjustCanvasSize as adjustHeartCanvasSize,
+    adjustHeartCanvasSize,
     startHeartAnimation,
     stopHeartAnimation,
     resumeHeartAnimation,
     addMouseMoveEventListener,
     addClickEventListener
-} from './heartWithConfetti.js';
+} from "./heartWithConfetti.js";
 
 let canvas = document.getElementById("heartWithConfettiCanvas");
 
@@ -43,9 +43,9 @@ window.onload = function () {
     addClickEventListener(canvas);
 };
 
-window.addEventListener('resize', adjustCanvasSizes);
-window.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'hidden') {
+window.addEventListener("resize", adjustCanvasSizes);
+window.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") {
         stopAnimations();
     } else {
         resumeAnimations();

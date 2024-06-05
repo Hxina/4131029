@@ -1,5 +1,5 @@
-const canvas = document.getElementById("heartWithConfettiCanvas");
-const ctx = canvas.getContext("2d");
+const heartCanvas = document.getElementById("heartWithConfettiCanvas");
+const heartCtx = heartCanvas.getContext("2d");
 
 let hearts = [];
 let confetti = [];
@@ -8,47 +8,47 @@ let mouseY = 0;
 let heartAnimationFrameId;
 let heartAnimationIntervalId;
 
-function adjustCanvasSize() {
+function adjustHeartCanvasSize() {
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = canvas.clientWidth * dpr;
-    canvas.height = canvas.clientHeight * dpr;
-    ctx.scale(dpr, dpr);
+    heartCanvas.width = heartCanvas.clientWidth * dpr;
+    heartCanvas.height = heartCanvas.clientHeight * dpr;
+    heartCtx.scale(dpr, dpr);
 }
 
 function drawHeart(x, y, size, color, alpha) {
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.beginPath();
-    ctx.translate(x, y);
-    ctx.moveTo(0, -size / 2);
-    ctx.bezierCurveTo(size / 2, -size, size, -size / 8, 0, size * 0.4);
-    ctx.bezierCurveTo(-size, -size / 8, -size / 2, -size, 0, -size / 2);
-    ctx.closePath();
-    ctx.fillStyle = color;
-    ctx.fill();
-    ctx.restore();
+    heartCtx.save();
+    heartCtx.globalAlpha = alpha;
+    heartCtx.beginPath();
+    heartCtx.translate(x, y);
+    heartCtx.moveTo(0, -size / 2);
+    heartCtx.bezierCurveTo(size / 2, -size, size, -size / 8, 0, size * 0.4);
+    heartCtx.bezierCurveTo(-size, -size / 8, -size / 2, -size, 0, -size / 2);
+    heartCtx.closePath();
+    heartCtx.fillStyle = color;
+    heartCtx.fill();
+    heartCtx.restore();
 }
 
 function drawConfetti(confetto) {
-    ctx.save();
-    ctx.globalAlpha = confetto.alpha;
-    ctx.fillStyle = confetto.color;
-    ctx.beginPath();
-    ctx.arc(confetto.x, confetto.y, confetto.size / 2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+    heartCtx.save();
+    heartCtx.globalAlpha = confetto.alpha;
+    heartCtx.fillStyle = confetto.color;
+    heartCtx.beginPath();
+    heartCtx.arc(confetto.x, confetto.y, confetto.size / 2, 0, Math.PI * 2);
+    heartCtx.fill();
+    heartCtx.restore();
 }
 
 function createHeart() {
-    const x = Math.random() * canvas.width;
-    const y = canvas.height + 20;
+    const x = Math.random() * heartCanvas.width;
+    const y = heartCanvas.height + 20;
     const size = Math.random() * 30 + 20;
-    const verticalSpeed = Math.random() + 0.1;
-    const horizontalSpeed = (Math.random() - 0.5) * 0.3;
+    const verticalSpeed = Math.random() + 0.2;
+    const horizontalSpeed = (Math.random() - 0.3) * 1.2;
     const color = createRandomColor();
     const alpha = 1;
     const explosionProbability = Math.random() < 0.1;
-    const targetHeight = Math.random() * canvas.height * 0.5 + canvas.height * 0.1
+    const targetHeight = Math.random() * heartCanvas.height * 0.5 + heartCanvas.height * 0.1
 
     const heart = {
         x: x,
@@ -77,7 +77,7 @@ function createExplosion(x, y) {
         const size = Math.random() * 6 + 3;
         const color = createRandomColor();
         const gravity = 0.01;
-        const disappearDistance = Math.random() * 40 + canvas.height * 0.3 + canvas.width * 0.3;
+        const disappearDistance = Math.random() * 40 + heartCanvas.height * 0.3 + heartCanvas.width * 0.3;
         const alpha = Math.random() * 0.3 + 0.7;
 
         const particle = {
@@ -152,7 +152,7 @@ function findCollisions() {
 }
 
 function heartAnimate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    heartCtx.clearRect(0, 0, heartCanvas.width, heartCanvas.height);
 
     let mouseOverHeart = false;
 
@@ -160,7 +160,7 @@ function heartAnimate() {
         heart.y -= heart.verticalSpeed;
         heart.x += heart.horizontalSpeed;
         heart.horizontalSpeed += (Math.random() - 0.5) * 0.1;
-        heart.alpha = 0.2 + (heart.y / canvas.height) * 0.8;
+        heart.alpha = 0.2 + (heart.y / heartCanvas.height) * 0.8;
 
         const dx = mouseX - heart.x;
         const dy = mouseY - heart.y;
@@ -178,9 +178,9 @@ function heartAnimate() {
     });
 
     if (mouseOverHeart) {
-        canvas.style.cursor = "pointer";
+        heartCanvas.style.cursor = "pointer";
     } else {
-        canvas.style.cursor = "default";
+        heartCanvas.style.cursor = "default";
     }
 
     findCollisions();
@@ -219,8 +219,8 @@ function heartAnimate() {
 }
 
 function startHeartAnimation() {
-    adjustCanvasSize();
-    window.addEventListener("resize", adjustCanvasSize);
+    adjustHeartCanvasSize();
+    window.addEventListener("resize", adjustHeartCanvasSize);
     heartAnimationIntervalId = setInterval(createHeart, 300);
     heartAnimate();
 }
@@ -229,7 +229,7 @@ function stopHeartAnimation() {
     cancelAnimationFrame(heartAnimationFrameId);
     clearInterval(heartAnimationIntervalId);
     heartAnimationIntervalId = null;
-    window.removeEventListener("resize", adjustCanvasSize);
+    window.removeEventListener("resize", adjustHeartCanvasSize);
 }
 
 function resumeHeartAnimation() {
@@ -240,9 +240,9 @@ function resumeHeartAnimation() {
     heartAnimationFrameId = requestAnimationFrame(heartAnimate);
 }
 
-function addMouseMoveEventListener(canvas) {
-    canvas.addEventListener("mousemove", function (event) {
-        const rect = canvas.getBoundingClientRect();
+function addMouseMoveEventListener(heartCanvas) {
+    heartCanvas.addEventListener("mousemove", function (event) {
+        const rect = heartCanvas.getBoundingClientRect();
         mouseX = event.clientX - rect.left;
         mouseY = event.clientY - rect.top;
 
@@ -259,16 +259,16 @@ function addMouseMoveEventListener(canvas) {
         });
 
         if (mouseOverHeart) {
-            canvas.style.cursor = "pointer";
+            heartCanvas.style.cursor = "pointer";
         } else {
-            canvas.style.cursor = "default";
+            heartCanvas.style.cursor = "default";
         }
     });
 }
 
-function addClickEventListener(canvas) {
-    canvas.addEventListener("click", function (event) {
-        const rect = canvas.getBoundingClientRect();
+function addClickEventListener(heartCanvas) {
+    heartCanvas.addEventListener("click", function (event) {
+        const rect = heartCanvas.getBoundingClientRect();
         const mouseX = event.clientX - rect.left;
         const mouseY = event.clientY - rect.top;
 
@@ -285,7 +285,7 @@ function addClickEventListener(canvas) {
 }
 
 export {
-    adjustCanvasSize,
+    adjustHeartCanvasSize,
     startHeartAnimation,
     stopHeartAnimation,
     resumeHeartAnimation,
