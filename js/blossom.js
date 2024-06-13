@@ -1,156 +1,164 @@
-const blossomCanvas = document.getElementById("blossomCanvas");
-const blossomCtx = blossomCanvas.getContext("2d");
-
-let blossoms = [];
-let blossomAnimationFrameId;
-let blossomAnimationIntervalId;
-
-function adjustBlossomCanvasSize() {
-    const dpr = window.devicePixelRatio || 1;
-    blossomCanvas.width = blossomCanvas.clientWidth * dpr;
-    blossomCanvas.height = blossomCanvas.clientHeight * dpr;
-    blossomCtx.scale(dpr, dpr);
-}
-
-function drawBlossom(x, y, rotation, petals) {
-    blossomCtx.save();
-    blossomCtx.translate(x, y);
-    blossomCtx.rotate(rotation);
-
-    petals.forEach(petal => {
-        blossomCtx.save();
-        blossomCtx.translate(petal.x, petal.y);
-        blossomCtx.rotate(petal.angle);
-        drawPetal(petal.size, petal.stamens);
-        blossomCtx.restore();
-    });
-
-    blossomCtx.restore();
-}
-
-function drawPetal(size, stamens) {
-    blossomCtx.beginPath();
-    blossomCtx.moveTo(0, 0);
-    blossomCtx.bezierCurveTo(size / 2, -size / 2, size, -size / 4, size, 0);
-    blossomCtx.bezierCurveTo(size, size / 4, size / 2, size / 2, 0, 0);
-
-    const gradientStrokePetalColor = blossomCtx.createRadialGradient(0, size / 4, size / 2, 0, 0, size);
-    gradientStrokePetalColor.addColorStop(0, "#ff859f");
-    gradientStrokePetalColor.addColorStop(1, "#fdf1f4");
-    blossomCtx.strokeStyle = gradientStrokePetalColor;
-    blossomCtx.stroke();
-
-    const gradientPetalColor = blossomCtx.createRadialGradient(0, 0, size / 9, 0, 0, size);
-    gradientPetalColor.addColorStop(0, "#f47983");
-    gradientPetalColor.addColorStop(1, "#fdf1f4");
-    blossomCtx.fillStyle = gradientPetalColor;
-    blossomCtx.fill();
-
-    stamens.forEach(stamen => {
-        blossomCtx.save();
-        blossomCtx.rotate(stamen.angle);
-        blossomCtx.beginPath();
-        blossomCtx.moveTo(0, 0);
-        blossomCtx.lineTo(stamen.length, 0);
-        blossomCtx.strokeStyle = "#fde9ed";
-        blossomCtx.stroke();
-        blossomCtx.beginPath();
-        blossomCtx.arc(stamen.length, 0, 2, 0, 2 * Math.PI);
-        blossomCtx.fillStyle = "#fbd3dc";
-        blossomCtx.fill();
-        blossomCtx.restore();
-    });
-}
-
-function createBlossom() {
-    const x = Math.random() * blossomCanvas.width;
-    const y = -20;
-    const size = Math.random() * 20 + 20;
-    const speed = Math.random() * 0.5 + 0.5;
-    const wind = (Math.random() - 0.5) * 1.28;
-    const rotation = Math.random() * 2 * Math.PI;
-    const rotationSpeed = (Math.random() - 0.5) * 0.03;
-
-    const petals = [];
-    const petalCount = 5;
-
-    for (let i = 0; i < petalCount; i++) {
-        const petal = {
-            x: 0,
-            y: 0,
-            size: size,
-            angle: (i * 2 * Math.PI) / petalCount,
-            stamens: []
-        };
-
-        const stamenCount = Math.floor(Math.random() * 5) + 3;
-        for (let j = 0; j < stamenCount; j++) {
-            const stamen = {
-                length: Math.random() * (size / 4) + size / 5,
-                angle: (Math.random() * (Math.PI / 3)) - (Math.PI / 10)
-            };
-            petal.stamens.push(stamen);
+(function () {
+    class Blossom {
+        constructor(x, y, size, speed, wind, rotation, rotationSpeed, petals) {
+            this.init(x, y, size, speed, wind, rotation, rotationSpeed, petals);
         }
 
-        petals.push(petal);
-    }
-
-    const blossom = {
-        x: x,
-        y: y,
-        size: size,
-        speed: speed,
-        wind: wind,
-        rotation: rotation,
-        rotationSpeed: rotationSpeed,
-        petals: petals
-    };
-
-    blossoms.push(blossom);
-}
-
-function blossomAnimate() {
-    blossomCtx.clearRect(0, 0, blossomCanvas.width, blossomCanvas.height);
-
-    blossoms.forEach((blossom, index) => {
-        blossom.y += blossom.speed;
-        blossom.x += blossom.wind;
-        blossom.rotation += blossom.rotationSpeed;
-        drawBlossom(blossom.x, blossom.y, blossom.rotation, blossom.petals);
-
-        if (blossom.y > blossomCanvas.height || blossom.x < -50 || blossom.x > blossomCanvas.width + 50) {
-            blossoms.splice(index, 1);
+        init(x, y, size, speed, wind, rotation, rotationSpeed, petals) {
+            this.x = x;
+            this.y = y;
+            this.size = size;
+            this.speed = speed;
+            this.wind = wind;
+            this.rotation = rotation;
+            this.rotationSpeed = rotationSpeed;
+            this.petals = petals;
         }
-    });
 
-    blossomAnimationFrameId = requestAnimationFrame(blossomAnimate);
-}
+        draw(ctx) {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.rotation);
 
-function startBlossomAnimation() {
-    adjustBlossomCanvasSize();
-    window.addEventListener("resize", adjustBlossomCanvasSize);
-    blossomAnimationIntervalId = setInterval(createBlossom, 1800);
-    blossomAnimate();
-}
+            this.petals.forEach(petal => {
+                ctx.save();
+                ctx.translate(petal.x, petal.y);
+                ctx.rotate(petal.angle);
+                this.drawPetal(ctx, petal.size, petal.stamens);
+                ctx.restore();
+            });
 
-function stopBlossomAnimation() {
-    cancelAnimationFrame(blossomAnimationFrameId);
-    clearInterval(blossomAnimationIntervalId);
-    blossomAnimationIntervalId = null;
-    window.removeEventListener("resize", adjustBlossomCanvasSize);
-}
+            ctx.restore();
+        }
 
-function resumeBlossomAnimation() {
-    if (!blossomAnimationIntervalId) {
-        blossomAnimationIntervalId = setInterval(createBlossom, 1800);
+        drawPetal(ctx, size, stamens) {
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.bezierCurveTo(size / 2, -size / 2, size, -size / 4, size, 0);
+            ctx.bezierCurveTo(size, size / 4, size / 2, size / 2, 0, 0);
+
+            const gradientStrokePetalColor = ctx.createRadialGradient(0, size / 4, size / 2, 0, 0, size);
+            gradientStrokePetalColor.addColorStop(0, "#ff859f");
+            gradientStrokePetalColor.addColorStop(1, "#fdf1f4");
+            ctx.strokeStyle = gradientStrokePetalColor;
+            ctx.stroke();
+
+            const gradientPetalColor = ctx.createRadialGradient(0, 0, size / 9, 0, 0, size);
+            gradientPetalColor.addColorStop(0, "#f47983");
+            gradientPetalColor.addColorStop(1, "#fdf1f4");
+            ctx.fillStyle = gradientPetalColor;
+            ctx.fill();
+
+            stamens.forEach(stamen => {
+                ctx.save();
+                ctx.rotate(stamen.angle);
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(stamen.length, 0);
+                ctx.strokeStyle = "#fde9ed";
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(stamen.length, 0, 2, 0, 2 * Math.PI);
+                ctx.fillStyle = "#fbd3dc";
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+
+        update(deltaTime, canvasHeight, canvasWidth) {
+            this.x += this.wind * deltaTime / 16;
+            this.y += this.speed * deltaTime / 16;
+            this.rotation += this.rotationSpeed * deltaTime / 16;
+
+            return !(this.x < -50 || this.x > canvasWidth + 50 || this.y > canvasHeight);
+        }
     }
 
-    blossomAnimationFrameId = requestAnimationFrame(blossomAnimate);
-}
+    class BlossomAnimation {
+        constructor(canvasId) {
+            this.canvas = document.getElementById(canvasId);
+            this.ctx = this.canvas.getContext("2d");
+            this.blossoms = [];
+            this.previousTimeStamp = 0;
+            this.previousBlossomCreationTime = 0;
+            this.blossomCreationInterval = 2000;
+            this.canvasWidth = 0;
+            this.canvasHeight = 0;
 
-export {
-    adjustBlossomCanvasSize,
-    startBlossomAnimation,
-    stopBlossomAnimation,
-    resumeBlossomAnimation
-}
+            window.addEventListener("resize", () => this.adjustCanvasSize());
+            this.adjustCanvasSize();
+        }
+
+        adjustCanvasSize() {
+            const dpr = window.devicePixelRatio || 1;
+            this.canvas.width = this.canvas.clientWidth * dpr;
+            this.canvas.height = this.canvas.clientHeight * dpr;
+            this.ctx.scale(dpr, dpr);
+            this.canvasWidth = this.canvas.width / dpr;
+            this.canvasHeight = this.canvas.height / dpr;
+        }
+
+        createBlossom() {
+            const x = Math.random() * this.canvas.width;
+            const y = -20;
+            const size = Math.random() * 30 + 10;
+            const speed = Math.random() * 0.5 + 0.5;
+            const wind = Math.random() - 0.5;
+            const rotation = Math.random() * 2 * Math.PI;
+            const rotationSpeed = (Math.random() - 0.5) * 0.02;
+
+            const petals = [];
+            const petalCount = 5;
+
+            for (let i = 0; i < petalCount; i++) {
+                const petal = {
+                    x: 0,
+                    y: 0,
+                    size: size,
+                    angle: (i * 2 * Math.PI) / petalCount,
+                    stamens: []
+                };
+
+                const stamenCount = Math.floor(Math.random() * 5) + 3;
+                for (let j = 0; j < stamenCount; j++) {
+                    const stamen = {
+                        length: Math.random() * (size / 4) + size / 5,
+                        angle: (Math.random() * (Math.PI / 3)) - (Math.PI / 10)
+                    };
+                    petal.stamens.push(stamen);
+                }
+
+                petals.push(petal);
+            }
+
+            const blossom = new Blossom(x, y, size, speed, wind, rotation, rotationSpeed, petals);
+            this.blossoms.push(blossom);
+        }
+
+        startAnimation() {
+            this.previousTimeStamp = performance.now();
+            window.requestAnimationFrame((timestamp) => this.animateBlossomLoop(timestamp));
+        }
+
+        animateBlossomLoop(timestamp) {
+            const deltaTime = timestamp - this.previousTimeStamp;
+            this.previousTimeStamp = timestamp;
+
+            if (timestamp - this.previousBlossomCreationTime > this.blossomCreationInterval) {
+                this.createBlossom();
+                this.previousBlossomCreationTime = timestamp;
+            }
+
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+            this.blossoms = this.blossoms.filter(blossom => {
+                blossom.draw(this.ctx);
+                return blossom.update(deltaTime, this.canvas.height, this.canvas.width);
+            });
+
+            window.requestAnimationFrame((timestamp) => this.animateBlossomLoop(timestamp));
+        }
+    }
+
+    window.BlossomAnimation = BlossomAnimation;
+})();

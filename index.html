@@ -9,9 +9,19 @@
 </head>
 
 <body>
-    <canvas id="heartWithConfettiCanvas"></canvas>
     <canvas id="blossomCanvas"></canvas>
-    <script type="module" src="js/main.js"></script>
+    <canvas id="heartWithConfettiCanvas"></canvas>
+    <script type="text/javascript" src="js/blossom.js"></script>
+    <script type="text/javascript" src="js/heartWithConfetti.js"></script>
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", () => {
+            const blossomAnimation = new BlossomAnimation("blossomCanvas");
+            blossomAnimation.startAnimation();
+
+            const heartWithConfettiAnimation = new HeartWithConfettiAnimation("heartWithConfettiCanvas");
+            heartWithConfettiAnimation.startAnimation();
+        });
+    </script>
 </body>
 
 </html>
