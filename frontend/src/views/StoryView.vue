@@ -28,7 +28,7 @@ const copyLoveCode = async () => {
   if (!story.value?.love_code || isCodeCopied.value) return;
 
   try {
-    const urlToCopy = `https://4131029.xyz/love/${story.value.love_code.toLowerCase()}`;
+    const urlToCopy = `${window.location.origin}/love/${story.value.love_code.toLowerCase()}`;
     
     await navigator.clipboard.writeText(urlToCopy);
 
@@ -52,7 +52,7 @@ const isLiked = () => likedStories.value.has(story.value?.love_code)
 
 const fetchStory = async () => {
   try {
-    const res = await axios.get(`http://localhost:8000/api/stories/${route.params.loveCode}`)
+    const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/stories/${route.params.loveCode}`)
     story.value = res.data
     loadLikes()
   } catch (e) {
@@ -68,7 +68,7 @@ const handleLike = async () => {
   const action = isLiked() ? 'unlike' : 'like'
   
   try {
-    const res = await axios.post('http://localhost:8000/api/stories/like', {
+    const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/stories/like`, {
       love_code: story.value.love_code,
       action: action
     })

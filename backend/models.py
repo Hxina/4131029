@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from .database import Base
 from datetime import datetime
+import pytz
 
 
 class Story(Base):
@@ -20,7 +21,9 @@ class Story(Base):
     view_count = Column(Integer, default=0, nullable=False)
     created_at = Column(
         String,
-        default=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        default=lambda: datetime.now(pytz.timezone("Asia/Shanghai")).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        ),
         nullable=False,
     )
 

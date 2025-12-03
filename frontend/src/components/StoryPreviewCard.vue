@@ -69,7 +69,7 @@ const handleLike = async (e) => {
   const action = isLiked() ? 'unlike' : 'like'
   
   try {
-    const res = await axios.post('http://localhost:8000/api/stories/like', {
+    const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/stories/like`, {
       love_code: props.story.love_code,
       action: action
     })

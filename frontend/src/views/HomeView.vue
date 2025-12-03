@@ -49,7 +49,7 @@ const handleCardLeave = () => {
 
 const fetchStories = async () => {
   try {
-    const res = await axios.get('http://localhost:8000/api/stories/sample')
+    const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/stories/sample`)
     stories.value = res.data
   } catch (e) {
     console.error(e)

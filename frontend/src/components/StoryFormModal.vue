@@ -141,7 +141,7 @@ const handleSubmit = async () => {
       images: form.value.images.map((img, idx) => ({ url: img, upload_order: idx }))
     }
     
-    const res = await axios.post('http://localhost:8000/api/stories', payload)
+    const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/stories`, payload)
     emit('submit-success', res.data)
   } catch (e) {
     console.error(e)

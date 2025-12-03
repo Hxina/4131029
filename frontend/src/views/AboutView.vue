@@ -6,7 +6,7 @@ const stats = ref({ total_stories: 0, total_word_count: 0 })
 
 const fetchStats = async () => {
   try {
-    const res = await axios.get('http://localhost:8000/api/stories/stats')
+    const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/stories/stats`)
     stats.value = res.data
   } catch (e) {
     console.error('获取统计数据失败:', e)
